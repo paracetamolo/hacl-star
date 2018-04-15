@@ -1,10 +1,8 @@
-#include "hacl_test_utils.h"
+#include "Hacl_Unverified_Random.h"
 #include <stdio.h>
 
-#if HACL_TEST_IS_WINDOWS
 
-/* /dev/urandom does not exist on Windows,
-     so we need to use Windows' own random number generator */
+#if HACL_IS_WINDOWS
 
 #include <windows.h>
 #include <wincrypt.h>
@@ -38,7 +36,7 @@ void hacl_aligned_free(void * ptr) {
   _aligned_free(ptr);
 }
 
-#else // ! HACL_TEST_IS_WINDOWS
+#else // ! HACL_IS_WINDOWS
 
 /* assume POSIX here */
 #include <sys/types.h>
@@ -76,4 +74,9 @@ void hacl_aligned_free(void * ptr) {
   free(ptr);
 }
 
-#endif // HACL_TEST_IS_WINDOWS
+#endif // HACL_IS_WINDOWS
+
+void randombytes(uint8_t * x,uint64_t len) {
+  if (! (read_random_bytes(len, x)))
+    exit(1);
+}

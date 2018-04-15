@@ -6,6 +6,9 @@ project (hacl)
 # Build settings
 set(CMAKE_BUILD_TYPE Release)
 
+# Include directories
+include_directories(./include)
+
 # Verified Files
 set(SOURCE_FILES_VERIFIED
    kremlib.c
@@ -22,26 +25,26 @@ set(SOURCE_FILES_VERIFIED
    Hacl_SHA2_512.c
    Hacl_HMAC_SHA2_256.c
    Hacl_Salsa20.c
-   NaCl.c)
-
-# Experimental Files
-set(SOURCE_FILES_EXPERIMENTAL
-   cpuid.c
-   drng.c
-   Random.c)
-
-# Define a user variable to determinate if experimental files are build
-option(Experimental "Include experimental code in HaCl build" OFF)
+   NaCl.c
+   haclnacl.c
+   Hacl_Unverified_Random.c)
 
 # Final set of files to build the libraries upon
-if (Experimental)
-   set(SOURCE_FILES ${SOURCE_FILES_VERIFIED} ${SOURCE_FILES_EXPERIMENTAL})
-else ()
-   set(SOURCE_FILES ${SOURCE_FILES_VERIFIED})
-endif ()
+set(SOURCE_FILES ${SOURCE_FILES_VERIFIED})
 
 # Compilation options
-# set(CMAKE_C_FLAGS "-Wall -Wextra")
+set(CMAKE_C_FLAGS "-Wall")
+
+# Compilation options depending on the architecture
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+   # 64 bits
+   if (MSVC)
+      set(CMAKE_C_FLAGS "-DKRML_NOUINT128")
+   endif()
+elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
+   # 32 bits
+   set(CMAKE_C_FLAGS "-DKRML_NOUINT128")
+endif()
 
 # Generate both a static and a shared library
 add_library(hacl_static STATIC ${SOURCE_FILES})
